@@ -179,11 +179,25 @@ void CompElement::CalcStiff(MatrixDouble &ek, MatrixDouble &ef) const {
     ek.setZero();
     ef.setZero();
 
-    //+++++++++++++++++
-    // Please implement me
-    std::cout << "\nPLEASE IMPLEMENT ME\n" << __PRETTY_FUNCTION__ << std::endl;
-    DebugStop();
-    //+++++++++++++++++
+    //Criar uma regra de integração e fazer o loop sobre os pontos de integração
+    IntPointData data;
+    this -> InitializeIntPointData(data);
+    double weight = 0.;
+
+    IntRule *intrule = this ->GetIntRule();
+    intrule -> SetOrder(2);
+    int intrulepoints = intrule -> NPoints ();
+
+    for (int int_ind = 0; int_ind < intrulepoints; ++int_ind)
+    {
+        intrule ->Point(int_ind, data.ksi,weight);
+
+        this -> ComputeRequiredData(data,data.ksi);
+        weight *= fabs(data.detjac);
+
+        material -> Contribute(data,weight,ek,ef);
+    }
+    
 }
 
 void CompElement::EvaluateError(std::function<void(const VecDouble &loc, VecDouble &val, MatrixDouble &deriv) > fp, VecDouble &errors) const {

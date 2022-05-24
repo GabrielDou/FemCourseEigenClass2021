@@ -134,12 +134,23 @@ void Poisson::Contribute(IntPointData &data, double weight, MatrixDouble &EK, Ma
         res = resloc[0];
     }
 
-    //+++++++++++++++++
-    // Please implement me
-    std::cout << "\nPLEASE IMPLEMENT ME\n" << __PRETTY_FUNCTION__ << std::endl;
-    DebugStop();
-    //+++++++++++++++++
+    //opção 2
+    int nShape = phi.rows();
+    for (int i = 0; i < nShape; i++){
+        for (int j = 0; j < nShape; j++){
+            //Matriz de Rigidez
+            EK(i,j) += (dphi(0,i) * dphi(0,j) + phi(i,0) * phi(j,0))*weight;
+        }
+        EF(i,0) += res * phi(i) * weight;
+    }  
+
+
+std::cout << "Phi = " << phi << std::endl;
+std::cout << "DPhi = " << dphi << std::endl;
+std::cout << "weight = " << weight << std::endl;
+std::cout << "EK = " << EK << std::endl;
 }
+
 
 void Poisson::PostProcessSolution(const IntPointData &data, const int var, VecDouble &Solout) const {
     MatrixDouble gradudx, flux;

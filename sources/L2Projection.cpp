@@ -79,22 +79,25 @@ void L2Projection::Contribute(IntPointData &data, double weight, MatrixDouble &E
         SolutionExact(data.x, result, deriv);
     }
 
-    //+++++++++++++++++
-    // Please implement me
-    std::cout << "\nPLEASE IMPLEMENT ME\n" << __PRETTY_FUNCTION__ << std::endl;
-    DebugStop();
-
     switch (this->GetBCType()) {
 
         case 0:
         {
             // Your code here
+            EF += (MathStatement::gBigNumber * result[0] * weight) * data.phi;
+            EK += (MathStatement::gBigNumber * weight) * data.phi * data.phi.transpose();
+
             break;
         }
 
         case 1:
         {
             // Your code here
+            for(auto iv = 0; iv < nstate; iv++){
+				for(auto in = 0 ; in < nshape; in++) {
+					EF(nstate*in+iv,0) += result(iv) * data.phi(in) * weight;
+				}//in
+			}//iv
             break;
         }
 

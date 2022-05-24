@@ -19,6 +19,9 @@ target_link_libraries (Contribute Eigen3::Eigen course_library)
 add_executable(PostProcess mainPostProcess.cpp)
 target_link_libraries (PostProcess Eigen3::Eigen course_library)
 
+add_executable(Example1 Example1.cpp)
+target_link_libraries (Example1 Eigen3::Eigen course_library)
+
 add_executable(Calcstiff mainCalcstiff.cpp)
 target_link_libraries (Calcstiff Eigen3::Eigen course_library)
 
