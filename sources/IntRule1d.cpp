@@ -25,19 +25,47 @@ IntRule1d::IntRule1d(int order) : IntRule(order) {
 
 void IntRule1d::SetOrder(int order) {
     fOrder = order;
-    if (order < 0 || order > MaxOrder()){
+    if (order < 0 || order > MaxOrder()) DebugStop();
+    switch (order) {
+    case 0:
+    case 1:
+        fPoints.resize(1, 1);
+        fWeights.resize(1);
+
+        fPoints(0, 0) = 0.;
+        fWeights[0] = 2.;
+
+        break;
+    case 2:
+    case 3:
+        fPoints.resize(2, 1);
+        fWeights.resize(2);
+
+        fPoints(0, 0) = -1. / sqrt(3.);
+        fWeights[0] = 1.;
+
+        fPoints(1, 0) = 1. / sqrt(3.);
+        fWeights[1] = 1.;
+
+        break;
+    case 4:
+    case 5:
+        fPoints.resize(3, 1);
+        fWeights.resize(3);
+
+        fPoints(0, 0) = -sqrt(3. / 5.);
+        fWeights[0] = 5. / 9.;
+
+        fPoints(1, 0) = 0.;
+        fWeights[1] = 8. / 9.;
+
+        fPoints(2, 0) = sqrt(3. / 5.);
+        fWeights[2] = 5. / 9.;
+        break;
+
+    default:
         DebugStop();
-    }
-
-    int nPoints = 2*order-1;
-    fPoints.resize(nPoints,1);
-    fWeights.resize(nPoints);
-
-    VecDouble coordAux(nPoints);
-    gauleg(-1,1,coordAux,fWeights);
-
-    for (int i = 0; i < nPoints; i++){
-        fPoints (i,0) = coordAux[i];
+        break;
     }
 }
 

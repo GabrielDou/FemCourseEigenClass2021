@@ -29,7 +29,7 @@ int main ()
 {
     GeoMesh gmesh;
     ReadGmsh read;
-    std::string filename("quads.msh");
+    std::string filename("../quads.msh");
 #ifdef MACOSX
     filename = "../"+filename;
 #endif
@@ -46,7 +46,13 @@ int main ()
 
     auto force = [](const VecDouble &x, VecDouble &res)
     {
-        res[0] = 2.*(1.-x[0])*x[0]+2.*(1-x[1])*x[1];
+        res[0] = -(2.*x[0]-2.);
+    };
+    auto exact = [](const VecDouble &x, VecDouble &val, MatrixDouble &deriv)
+    {
+        val[0] = (1.-x[0])*(1.-x[1])*x[1];
+        deriv(0,0) = -x[1]+x[1]*x[1];
+        deriv(1,0) = 1.-2.*x[1]-x[0]+2.*x[1]*x[0];
     };
     mat1->SetForceFunction(force);
     MatrixDouble proj(1,1),val1(1,1),val2(1,1);
@@ -54,22 +60,19 @@ int main ()
     val1.setZero();
     val2.setZero();
     L2Projection *bc_linha = new L2Projection(0,2,proj,val1,val2);
+    bc_linha->SetExactSolution(exact);
     L2Projection *bc_point = new L2Projection(0,3,proj,val1,val2);
+    bc_point->SetExactSolution(exact);
     std::vector<MathStatement *> mathvec = {0,mat1,bc_point,bc_linha};
     cmesh.SetMathVec(mathvec);
-    cmesh.SetDefaultOrder(1);
+    cmesh.SetDefaultOrder(2);
     cmesh.AutoBuild();
     cmesh.Resequence();
 
         Analysis locAnalysis(&cmesh);
     locAnalysis.RunSimulation();
     PostProcessTemplate<Poisson> postprocess;
-    auto exact = [](const VecDouble &x, VecDouble &val, MatrixDouble &deriv)
-    {
-        val[0] = (1.-x[0])*x[0]*(1-x[1])*x[1];
-        deriv(0,0) = (1.-2.*x[0])*(1-x[1])*x[1];
-        deriv(1,0) = (1-2.*x[1])*(1-x[0])*x[0];
-    };
+    
 
 //    if (!strcmp("Sol", name.c_str())) return ESol;
 //    if (!strcmp("DSol", name.c_str())) return EDSol;

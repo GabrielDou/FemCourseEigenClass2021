@@ -39,7 +39,7 @@ int main ()
 {
     GeoMesh gmesh;
     ReadGmsh read;
-    std::string filename("oneD.msh");
+    std::string filename("../oneD.msh");
 #ifdef MACOSX
     filename = "../"+filename;
 #endif
@@ -87,8 +87,8 @@ int main ()
 }
 void exact(const VecDouble &point,VecDouble &val, MatrixDouble &deriv){
 
-    deriv(0,0) = 4-point[0];
-    val[0]=point[0]*(8.-point[0])/2.;
+    deriv(0,0) = 4.-point[0]; // Derivada de u
+    val[0]=point[0]*(8.-point[0])/2; // Função u - Solução Analítica
     return;
 }
 

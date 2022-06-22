@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 #include "Geom1d.h"
 
 Geom1d::Geom1d() {
@@ -11,7 +7,7 @@ Geom1d::Geom1d() {
 Geom1d::~Geom1d() {
 }
 
-Geom1d::Geom1d(const Geom1d &copy) {
+Geom1d::Geom1d(const Geom1d& copy) {
     fNodeIndices = copy.fNodeIndices;
 }
 
@@ -20,91 +16,91 @@ Geom1d& Geom1d::operator=(const Geom1d& copy) {
     return *this;
 }
 
-void Geom1d::Shape(const VecDouble &xi, VecDouble &phi, MatrixDouble &dphi) {
-    // Funçoes de Forma
-    phi[0] = (1 - xi[0] ) / 2.;
-    phi[1] = (1 + xi[0] ) / 2.;
+void Geom1d::Shape(const VecDouble& xi, VecDouble& phi, MatrixDouble& dphi) {
+    if (xi.size() != Dimension || phi.size() != nCorners || dphi.rows() != Dimension || dphi.cols() != nCorners) { DebugStop(); }
 
-    dphi(0,0) = -0.5;
-    dphi(1,0) =  0.5;
+    double csi = xi[0];
 
+    phi.resize(2);
+    dphi.resize(1, 2);
+
+    phi[0] = (1. - csi) / 2.;
+    phi[1] = (1 + csi) / 2.;
+
+    dphi(0, 0) = -0.5;
+    dphi(0, 1) = 0.5;
 }
 
-void Geom1d::X(const VecDouble &xi, MatrixDouble &NodeCo, VecDouble &x) {
-    
-    VecDouble phi(2);
-    MatrixDouble dphi(2,1);
+void Geom1d::X(const VecDouble& xi, MatrixDouble& NodeCo, VecDouble& x) {
 
-    Shape(xi,phi,dphi);
-    //x[0] = NodeCo(0,0) * phi[0] + NodeCo(0,1) * phi[1];
+    if (xi.size() != Dimension) DebugStop();
+    if (x.size() < NodeCo.rows()) DebugStop();
+    if (NodeCo.cols() != nCorners) DebugStop();
 
     int nrow = NodeCo.rows();
     int ncol = NodeCo.cols();
 
-    for (int i = 0; i < nCorners; i++){
-        for (int j = 0; j < nrow; j++){
-            x[j] += NodeCo(j,i) * phi[i];
-        }
-        
+    if (x.size() < nrow) {
+        x.resize(nrow);
     }
-    
 
+    x.setZero();
 
+    for (int i = 0; i < nrow; i++) {
+        x[i] = 0.5 * NodeCo(i, 0) * (1. - xi[0]) + 0.5 * NodeCo(i, 1) * (1. + xi[0]);
+    }
 }
 
-void Geom1d::GradX(const VecDouble &xi, MatrixDouble &NodeCo, VecDouble &x, MatrixDouble &gradx) {
-    
-    VecDouble phi(2);
-    MatrixDouble dphi(2,1);
+void Geom1d::GradX(const VecDouble& xi, MatrixDouble& NodeCo, VecDouble& x, MatrixDouble& gradx) {
+    if (xi.size() != Dimension) DebugStop();
+    if (x.size() != NodeCo.rows()) DebugStop();
+    if (NodeCo.cols() != nCorners) DebugStop();
 
-    Shape(xi,phi,dphi);
+    int nrow = NodeCo.rows();
+    int ncol = NodeCo.cols();
 
-    int ndirections = NodeCo.rows();
-    int npoints = NodeCo.cols();
+    gradx.resize(nrow, 1);
+    gradx.setZero();
 
-    gradx.resize(ndirections,1);
-    gradx.fill(0.);
-    
-    for (int i =0; i < ndirections; i++){
-        for (int j = 0; j < npoints; j++){
-            x[i] += NodeCo(i,j)*phi[j];
-            gradx(i,0) += NodeCo(i,j)*dphi(j,0);
-        }
-        
+    if (x.size() < nrow) {
+        x.resize(nrow);
     }
-    
 
-   // x[0] = NodeCo(0,0) * phi[0] + NodeCo(0,1) * phi[1];
+    x.setZero();
 
-    //gradx(0,0) = NodeCo(0,0) * dphi(0,0);
-    //gradx(0,1) = NodeCo(0,1) * dphi(1,0);
-
+    for (int i = 0; i < nrow; i++) {
+        x[i] = 0.5 * NodeCo(i, 0) * (1. - xi[0]) + 0.5 * NodeCo(i, 1) * (1. + xi[0]);
+        gradx(i, 0) = -0.5 * NodeCo(i, 0) + 0.5 * NodeCo(i, 1);
+    }
 }
 
-void Geom1d::SetNodes(const VecInt &nodes) {
-    if(nodes.rows() != 2) DebugStop();
+void Geom1d::SetNodes(const VecInt& nodes) {
+
+    if (nodes.rows() != 2) DebugStop();
+
     fNodeIndices = nodes;
 }
 
-void Geom1d::GetNodes(VecInt &nodes) const {
+void Geom1d::GetNodes(VecInt& nodes) const {
     nodes = fNodeIndices;
 }
 
 int Geom1d::NodeIndex(int node) const {
-    if(node<0 || node > 2) DebugStop();
+    if (node < 0 || node > 2) DebugStop();
     return fNodeIndices[node];
 }
 
-int Geom1d::NumNodes(){
-    return nCorners;    
+int Geom1d::NumNodes() {
+    return nCorners;
 }
 
-GeoElementSide Geom1d::Neighbour(int side) const{
-    if(side <0 || side>2) DebugStop();
+GeoElementSide Geom1d::Neighbour(int side) const {
+    if (side < 0 || side>2) DebugStop();
     return fNeighbours[side];
 }
 
-void Geom1d::SetNeighbour(int side, const GeoElementSide &neighbour) {
-    if(side < 0 || side > 2) DebugStop();
-    fNeighbours[side]=neighbour;
+void Geom1d::SetNeighbour(int side, const GeoElementSide& neighbour) {
+    if (side < 0 || side > 2) DebugStop();
+    fNeighbours[side] = neighbour;
 }
+

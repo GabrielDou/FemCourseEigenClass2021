@@ -31,6 +31,7 @@ static void DebugStop()
         std::cout << "\nYour chance to put a breakpoint here\n" << std::flush;
     }
     std::bad_exception myex;
+
     throw myex;
 
 }

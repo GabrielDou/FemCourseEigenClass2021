@@ -14,7 +14,7 @@ using namespace std;
 int main(){
     
     // Creating a Geometric mesh
-    int nElements = 4;
+    int nElements = 64;
     int nNodes = nElements+1;
 
     GeoMesh *gmesh = new GeoMesh();   
@@ -70,8 +70,8 @@ int main(){
     CompMesh cmesh(gmesh);
 
     //Estabelece um tipo de material
-    MatrixDouble perm(1,1);
-    perm(0,0)=1.;
+    MatrixDouble perm(3,3);
+    perm.setIdentity();
     Poisson *mat = new Poisson(matid,perm);
 
     //Inserir o material de condição de contorno
@@ -88,41 +88,37 @@ int main(){
     L2Projection *bc_point = new L2Projection(bcType,matIdBC,proj,val1,val2);
     std::vector<MathStatement *> mathvec = {0,mat,bc_point};
     cmesh.SetMathVec(mathvec);
-    cmesh.SetDefaultOrder(1);
+    cmesh.SetDefaultOrder(2);
     
     //Insere o material na malha computacional e cria o espaço de aproximação
-    // cmesh.SetMathStatement(matid,mat);
     cmesh.AutoBuild();
 
-    //Análise.
+    //Análise
     Analysis an(&cmesh);
     an.RunSimulation();
 
 
-     PostProcessTemplate<Poisson> postprocess;
-     auto exact = [](const VecDouble &x, VecDouble &val, MatrixDouble &deriv)
-     {
-         val[0] = x[0]-sinh(x[0])/sinh(1.);
-         deriv(0,0) = 1.-cosh(x[0])*cosh(1.);
-     };
-     postprocess.AppendVariable("Sol");
-     postprocess.AppendVariable("DSol");
+    PostProcessTemplate<Poisson> postprocess;
+    auto exact = [](const VecDouble &x, VecDouble &val, MatrixDouble &deriv)
+    {
+        val[0] = x[0]-sinh(x[0])/sinh(1.);
+        deriv(0,0) = 1.-cosh(x[0])/sinh(1.);
+    };
+    postprocess.AppendVariable("Sol");
+    postprocess.AppendVariable("DSol");
 
-     postprocess.SetExact(exact);
-     mat->SetExactSolution(exact);
-     printer.PrintSolVTK(&cmesh,postprocess,"result.vtk");
-    
+    postprocess.SetExact(exact);
+    mat->SetExactSolution(exact);    
 
+    // //Novo, mudar permeabilidade.
+    VecDouble errvec;
+    mat->SetExactSolution(exact);
+    mat->SetDimension(1);
+    an.PostProcessSolution("result.vtk",postprocess);
+    errvec = an.PostProcessError(std::cout, postprocess);
 
-    
-     //Pos processamento;
-     PostProcessTemplate<Poisson> postprocess;
-     postprocess.SetExact(exact);
-    
-     //Analise do erro;
-     VecDouble errvec;
-     errvec = an.PostProcessError(std::cout, postprocess);
 
     return 0;
 }
+
 
