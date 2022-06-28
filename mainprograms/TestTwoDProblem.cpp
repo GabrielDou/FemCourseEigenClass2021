@@ -29,7 +29,7 @@ int main ()
 {
     GeoMesh gmesh;
     ReadGmsh read;
-    std::string filename("../quads.msh");
+    std::string filename("../quad6.msh");
 #ifdef MACOSX
     filename = "../"+filename;
 #endif
@@ -46,13 +46,15 @@ int main ()
 
     auto force = [](const VecDouble &x, VecDouble &res)
     {
-        res[0] = -(2.*x[0]-2.);
+        res[0] = -((2.*x[0]-2.)+((1.-x[0])*(1.-x[1])*x[1]));
+        
     };
     auto exact = [](const VecDouble &x, VecDouble &val, MatrixDouble &deriv)
     {
         val[0] = (1.-x[0])*(1.-x[1])*x[1];
         deriv(0,0) = -x[1]+x[1]*x[1];
         deriv(1,0) = 1.-2.*x[1]-x[0]+2.*x[1]*x[0];
+        
     };
     mat1->SetForceFunction(force);
     MatrixDouble proj(1,1),val1(1,1),val2(1,1);
@@ -88,10 +90,12 @@ int main ()
     postprocess.AppendVariable("DSolExact");
     postprocess.SetExact(exact);
     mat1->SetExactSolution(exact);
-    locAnalysis.PostProcessSolution("quads.vtk", postprocess);
+    locAnalysis.PostProcessSolution("triangulo6k2.vtk", postprocess);
 
     VecDouble errvec;
     errvec = locAnalysis.PostProcessError(std::cout, postprocess);
-    
+
+    //parar controlz;
+
     return 0;
 }

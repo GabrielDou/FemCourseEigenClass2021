@@ -114,7 +114,7 @@ int main(){
     VecDouble errvec;
     mat->SetExactSolution(exact);
     mat->SetDimension(1);
-    an.PostProcessSolution("result.vtk",postprocess);
+    an.PostProcessSolution("resultado64k2.vtk",postprocess);
     errvec = an.PostProcessError(std::cout, postprocess);
 
 

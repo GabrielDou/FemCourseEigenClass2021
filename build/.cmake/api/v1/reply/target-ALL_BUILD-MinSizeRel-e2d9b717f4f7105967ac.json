@@ -1,0 +1,75 @@
+{
+	"backtrace" : 0,
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : 
+		[
+			"CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			}
+		]
+	},
+	"dependencies" : 
+	[
+		{
+			"id" : "Fem2021::@bcf048ec11e67256b722"
+		},
+		{
+			"id" : "Contribute::@bcf048ec11e67256b722"
+		},
+		{
+			"id" : "Example1::@bcf048ec11e67256b722"
+		},
+		{
+			"id" : "Calcstiff::@bcf048ec11e67256b722"
+		},
+		{
+			"id" : "PostProcess::@bcf048ec11e67256b722"
+		},
+		{
+			"id" : "Assemble::@bcf048ec11e67256b722"
+		},
+		{
+			"id" : "TestEigen::@bcf048ec11e67256b722"
+		},
+		{
+			"id" : "course_library::@bcf048ec11e67256b722"
+		},
+		{
+			"id" : "TestShape::@bcf048ec11e67256b722"
+		},
+		{
+			"id" : "TestOneDProblem::@bcf048ec11e67256b722"
+		},
+		{
+			"id" : "TestGeom::@bcf048ec11e67256b722"
+		},
+		{
+			"id" : "ZERO_CHECK::@6890427a1f51a3e7e1df"
+		},
+		{
+			"id" : "TestTwoDProblem::@bcf048ec11e67256b722"
+		},
+		{
+			"id" : "TestIntegrate::@bcf048ec11e67256b722"
+		},
+		{
+			"id" : "TestThreeDProblem::@bcf048ec11e67256b722"
+		}
+	],
+	"id" : "ALL_BUILD::@6890427a1f51a3e7e1df",
+	"isGeneratorProvided" : true,
+	"name" : "ALL_BUILD",
+	"paths" : 
+	{
+		"build" : ".",
+		"source" : "."
+	},
+	"sources" : [],
+	"type" : "UTILITY"
+}
